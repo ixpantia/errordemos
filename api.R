@@ -1,15 +1,15 @@
 # If googleErrorReportingR is not installed:
 # devtools::install_github("https://github.com/ixpantia/googleErrorReportingR")
-#
+# 
+# Also, please make sure that you have the following environmental variables set
+#  PROJECT_ID=<your gcp project id>
+#  ERROR_REPORTING_API_KEY=<your api key>
+# 
 # Based in plumber examples in:  https://www.rplumber.io/
 
 library(plumber)
 library(tidyverse)
 library(googleErrorReportingR)
-
-
-api_key <- Sys.getenv("API_KEY")
-
 
 
 #* @apiTitle Plumber Example API
@@ -26,29 +26,26 @@ function(msg = "") {
 #* @param n The number of random values
 #* @get /plot
 function(n = 100) {
-  
+
   message <- format_error_message()
-  
+
   if (n <= 0) {
-    
+
     # This is to try to catch the error before the stop (stop demo)
     message$serviceContext$service <- "Argument should be an integer greather than 0"
     message$serviceContext$version <- "v0.0.1"
-    project_id <- "infraestructura-pruebas"
-    
-    googleErrorReportingR::report_error(project_id,
-                                        api_key,
-                                        message)
-    
+
+    googleErrorReportingR::report_error(message)
+
     stop("Argument should be an integer greather than 0")
-        
-    
-    
+
+
+
   } else {
       rand <- rnorm(n)
       hist(rand)
   }
-  
+
 }
 
 #* Return the sum of two numbers
