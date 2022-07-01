@@ -1,14 +1,14 @@
 # If googleErrorReportingR is not installed:
 # devtools::install_github("https://github.com/ixpantia/googleErrorReportingR")
 #
-# Based in plumbre examples in:  https://www.rplumber.io/
+# Based in plumber examples in:  https://www.rplumber.io/
 
 library(plumber)
 library(tidyverse)
 library(googleErrorReportingR)
 
 
-#api_key <- Sys.getenv("API_KEY")
+api_key <- Sys.getenv("API_KEY")
 
 
 
@@ -29,9 +29,9 @@ function(n = 100) {
   
   message <- format_error_message()
   
-  if (n <= 0 ) {
+  if (n <= 0) {
     
-    # set any of the message components to your own value
+    # This is to try to catch the error before the stop (stop demo)
     message$serviceContext$service <- "Argument should be an integer greather than 0"
     message$serviceContext$version <- "v0.0.1"
     project_id <- "infraestructura-pruebas"
