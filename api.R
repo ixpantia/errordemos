@@ -33,10 +33,9 @@ function(n = 100) {
   result <- tryCatch(
     rnorm(n), 
     error = function(e) {
-    test <- as.character(e)
-    message$message <- test
+    message$message <- as.character(e)
     googleErrorReportingR::report_error(message)
-    return(test)
+    return(as.character(e))
   })
       
   return(result)
