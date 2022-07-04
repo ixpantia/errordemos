@@ -10,7 +10,9 @@
 library(plumber)
 library(tidyverse)
 library(googleErrorReportingR)
-
+message <- googleErrorReportingR::format_error_message()
+message$serviceContext$service <- "errordemos"
+message$serviceContext$version <- "v0.0.1"
 
 #* @apiTitle Plumber Example API
 
@@ -27,23 +29,30 @@ function(msg = "") {
 #* @get /plot
 function(n = 100) {
 
-  message <- format_error_message()
-
-  if (n <= 0) {
+  if (n < 0) {
 
     # This is to try to catch the error before the stop (stop demo)
-    message$serviceContext$service <- "Argument should be an integer greather than 0"
-    message$serviceContext$version <- "v0.0.1"
 
     googleErrorReportingR::report_error(message)
 
     stop("Argument should be an integer greather than 0")
 
 
-
   } else {
       rand <- rnorm(n)
-      hist(rand)
+      result <- tryCatch({
+        hist(rand)
+      }, warning = function(w) {
+        message$message <- w
+        googleErrorReportingR::report_error(message)
+      }, error = function(e) {
+        message$message <- e
+        googleErrorReportingR::report_error(message)
+      }, finally = {
+        message$message <- "finally"
+        googleErrorReportingR::report_error(message)
+      })
+      
   }
 
 }
