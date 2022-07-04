@@ -10,7 +10,10 @@
 library(plumber)
 library(tidyverse)
 library(googleErrorReportingR)
-
+library(jsonlite)
+message <- googleErrorReportingR::format_error_message()
+message$serviceContext$service <- "errordemos"
+message$serviceContext$version <- "v0.0.1"
 
 #* @apiTitle Plumber Example API
 
@@ -22,30 +25,20 @@ function(msg = "") {
 }
 
 #* Plot a histogram
-#* @serializer png
+#* @serializer json
 #* @param n The number of random values
-#* @get /plot
+#* @get /error
 function(n = 100) {
-
-  message <- format_error_message()
-
-  if (n <= 0) {
-
-    # This is to try to catch the error before the stop (stop demo)
-    message$serviceContext$service <- "Argument should be an integer greather than 0"
-    message$serviceContext$version <- "v0.0.1"
-
+  
+  result <- tryCatch(
+    rnorm(n), 
+    error = function(e) {
+    message$message <- as.character(e)
     googleErrorReportingR::report_error(message)
-
-    stop("Argument should be an integer greather than 0")
-
-
-
-  } else {
-      rand <- rnorm(n)
-      hist(rand)
-  }
-
+    return(as.character(e))
+  })
+      
+  return(result)
 }
 
 #* Return the sum of two numbers
